@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>빌라 관리</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Pretendard', -apple-system, sans-serif; 
+      background: linear-gradient(180deg, #e0f7fa 0%, #b2ebf2 50%, #80deea 100%);
+      min-height: 100vh;
+    }
+    
+    /* 헤더 */
+    .header {
+      background: linear-gradient(90deg, #00695c, #00897b);
+      color: white;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .header h1 { font-size: 20px; font-weight: 700; }
+    .header-sub { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+    .header-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+    
+    /* 탭 메뉴 */
+    .tabs {
+      display: flex;
+      background: #004d40;
+    }
+    .tab {
+      flex: 1;
+      padding: 14px 8px;
+      text-align: center;
+      color: white;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    .tab.active {
+      background: #00796b;
+      border-bottom-color: #ffb300;
+    }
+    
+    /* 카드 */
+    .card {
+      background: white;
+      border-radius: 10px;
+      margin: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .card-header {
+      background: #37474f;
+      color: white;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-body { padding: 14px; }
+    
+    /* 폼 */
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 13px; color: #666; margin-bottom: 6px; display: block; font-weight: 500; }
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: #00897b; }
+    textarea.form-input { min-height: 100px; resize: vertical; }
+    
+    /* 버튼 */
+    .btn {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-orange { background: #ff9800; color: white; }
+    .btn-green { background: #4caf50; color: white; }
+    .btn-blue { background: #2196f3; color: white; }
+    .btn-red { background: #f44336; color: white; }
+    .btn-gray { background: #9e9e9e; color: white; }
+    .btn-block { width: 100%; }
+    .btn-sm { padding: 8px 14px; font-size: 13px; }
+    
+    /* 칩 버튼 */
+    .chip {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 4px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .chip-teal { background: #e0f2f1; color: #00695c; }
+    .chip-teal.active { background: #00695c; color: white; }
+    .chip-green { background: #e8f5e9; color: #2e7d32; }
+    .chip-green.active { background: #2e7d32; color: white; }
+    
+    /* 필터 버튼 */
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    .filter-btn.active { background: #00695c; color: white; }
+    .filter-btn:not(.active) { background: white; color: #00695c; }
+    
+    /* 리스트 아이템 */
+    .list-item {
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      margin: 10px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid #ff9800;
+    }
+    .list-item.done { border-left-color: #4caf50; }
+    .list-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .villa-name { font-weight: 700; font-size: 16px; }
+    .unit-badge {
+      background: #1565c0;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-badge.pending { background: #fff3e0; color: #e65100; }
+    .status-badge.done { background: #e8f5e9; color: #2e7d32; }
+    .list-item-desc { color: #333; font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
+    .list-item-date { font-size: 11px; color: #999; }
+    
+    /* 전화 버튼 */
+    .phone-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      text-decoration: none;
+      margin-right: 6px;
+      margin-top: 6px;
+    }
+    .phone-btn.owner { background: #fff3e0; color: #e65100; }
+    .phone-btn.tenant { background: #e8f5e9; color: #2e7d32; }
+    
+    /* 액션 버튼 그룹 */
+    .action-btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    /* 빌라 그리드 */
+    .villa-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .villa-btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: white;
+      color: #00695c;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .villa-btn.active { background: #00695c; color: white; }
+    
+    /* 호수 테이블 */
+    .unit-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .unit-table th {
+      background: #607d8b;
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .unit-table td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    .unit-num {
+      display: inline-block;
+      background: #e3f2fd;
+      color: #1565c0;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+    }
+    
+    /* 상태 선택 */
+    .status-select {
+      display: flex;
+      gap: 10px;
+    }
+    .status-option {
+      flex: 1;
+      padding: 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+    .status-option.pending { background: #eee; color: #666; }
+    .status-option.pending.active { background: #ff9800; color: white; }
+    .status-option.done { background: #eee; color: #666; }
+    .status-option.done.active { background: #4caf50; color: white; }
+    
+    /* 로딩 */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #e0f7fa 0%, #b2ebf2 100%);
+    }
+    .loading-icon { font-size: 48px; margin-bottom: 16px; }
+    .loading-text { color: #00695c; font-size: 16px; }
+    
+    /* 빈 상태 */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #999;
+    }
+    
+    /* 뒤로가기 헤더 */
+    .back-header {
+      background: #00695c;
+      color: white;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .back-title { font-size: 18px; font-weight: 600; }
+    
+    /* 빌라 정보 박스 */
+    .villa-info {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .villa-info-row { margin-bottom: 4px; }
+    .villa-info a { color: #1565c0; text-decoration: none; }
+
+    /* 플로팅 버튼 */
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #ff9800;
+      color: white;
+      border: none;
+      font-size: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      z-index: 50;
+    }
+
+    /* 두 줄 입력 */
+    .row-2 {
+      display: flex;
+      gap: 12px;
+    }
+    .row-2 > div { flex: 1; }
+    
+    /* 숨김 */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading">
+    <div class="loading-icon">🏠</div>
+    <div class="loading-text">연결 중...</div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyBrMcbN2Iv3hjBW0uQx7_gSXAWcwTTSgGI",
+  authDomain: "villa-management-4af75.firebaseapp.com",
+  projectId: "villa-management-4af75",
+  storageBucket: "villa-management-4af75.firebasestorage.app",
+  messagingSenderId: "994416353525",
+  appId: "1:994416353525:web:3bd200acc5d68f6df065bc"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 상태
+let currentPage = 'list';
+let currentTab = 'as';
+let filter = '미결';
+let villas = [];
+let units = [];
+let repairs = [];
+let materials = [];
+let editData = null;
+let selectedVilla = null;
+
+// 실시간 구독
+db.collection('villas').onSnapshot(snap => {
+  villas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  render();
+});
+db.collection('units').onSnapshot(snap => {
+  units = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  render();
+});
+db.collection('repairs').onSnapshot(snap => {
+  repairs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  render();
+});
+db.collection('materials').onSnapshot(snap => {
+  materials = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  render();
+});
+
+// 오늘 날짜
+const today = new Date().toISOString().split('T')[0];
+
+// 렌더링
+function render() {
+  const app = document.getElementById('app');
+  
+  if (currentPage === 'list') {
+    if (currentTab === 'as') renderASList(app);
+    else if (currentTab === 'villa') renderVillaList(app);
+    else if (currentTab === 'material') renderMaterialList(app);
+  } else if (currentPage === 'asForm') {
+    renderASForm(app);
+  } else if (currentPage === 'villaForm') {
+    renderVillaForm(app);
+  } else if (currentPage === 'unitForm') {
+    renderUnitForm(app);
+  } else if (currentPage === 'materialForm') {
+    renderMaterialForm(app);
+  }
+}
+
+// A/S 목록
+function renderASList(app) {
+  const filtered = repairs
+    .filter(r => filter === '전체' ? true : r.status === filter)
+    .sort((a, b) => (b.receiveDate || '').localeCompare(a.receiveDate || ''));
+  
+  app.innerHTML = `
+    <div class="header">
+      <div>
+        <h1>🏠 빌라 관리</h1>
+        <div class="header-sub">빌라 ${villas.length} | 수리 ${repairs.length} | 자재 ${materials.length}</div>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('as')">🔧 A/S</button>
+      <button class="tab" onclick="setTab('villa')">🏢 빌라</button>
+      <button class="tab" onclick="setTab('material')">📦 자재</button>
+    </div>
+    
+    <div style="padding: 12px; display: flex; flex-wrap: wrap; align-items: center;">
+      <button class="filter-btn ${filter === '미결' ? 'active' : ''}" onclick="setFilter('미결')">미결 (${repairs.filter(r => r.status === '미결').length})</button>
+      <button class="filter-btn ${filter === '완료' ? 'active' : ''}" onclick="setFilter('완료')">완료 (${repairs.filter(r => r.status === '완료').length})</button>
+      <button class="filter-btn ${filter === '전체' ? 'active' : ''}" onclick="setFilter('전체')">전체 (${repairs.length})</button>
+      <button class="btn btn-orange btn-sm" style="margin-left: auto;" onclick="goASForm()">+ 접수</button>
+    </div>
+    
+    ${filtered.length === 0 ? '<div class="empty">접수 내역이 없습니다</div>' : filtered.map(r => `
+      <div class="list-item ${r.status === '완료' ? 'done' : ''}">
+        <div class="list-item-header">
+          <div>
+            <span class="villa-name">${r.villaName || ''}</span>
+            <span class="unit-badge">${r.unit || ''}</span>
+            <span class="status-badge ${r.status === '완료' ? 'done' : 'pending'}">${r.status || '미결'}</span>
+          </div>
+          <div class="list-item-date">${r.receiveDate || ''}</div>
+        </div>
+        <div class="list-item-desc">${r.description || ''}</div>
+        <div>
+          ${r.ownerPhone ? `<a href="tel:${r.ownerPhone}" class="phone-btn owner">건물주 📞</a><a href="sms:${r.ownerPhone}" class="phone-btn owner">문자</a>` : ''}
+          ${r.phone ? `<a href="tel:${r.phone}" class="phone-btn tenant">세입자 📞</a><a href="sms:${r.phone}" class="phone-btn tenant">문자</a>` : ''}
+        </div>
+        <div class="action-btns">
+          <button class="action-btn btn-${r.status === '완료' ? 'orange' : 'green'}" onclick="toggleStatus('${r.id}')">${r.status === '완료' ? '미결로' : '완료로'}</button>
+          <button class="action-btn btn-blue" onclick="editRepair('${r.id}')">수정</button>
+          <button class="action-btn btn-red" onclick="deleteRepair('${r.id}')">삭제</button>
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// A/S 폼
+function renderASForm(app) {
+  const data = editData || { villaName: '', unit: '', description: '', receiveDate: today, status: '미결', phone: '', ownerPhone: '' };
+  const villaUnits = data.villaName ? units.filter(u => villas.find(v => v.id === u.villaId)?.name === data.villaName) : [];
+  
+  app.innerHTML = `
+    <div class="back-header">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <span class="back-title">${editData ? 'A/S 수정' : 'A/S 접수'}</span>
+    </div>
+    
+    <div style="padding: 16px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">접수일</label>
+            <input type="date" class="form-input" id="receiveDate" value="${data.receiveDate}">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">빌라 *</label>
+            <div class="villa-grid">
+              ${villas.map(v => `<button class="villa-btn ${data.villaName === v.name ? 'active' : ''}" onclick="selectVilla('${v.name}', '${v.ownerPhone || ''}')">${v.name}</button>`).join('')}
+            </div>
+            <input type="text" class="form-input" id="villaName" value="${data.villaName}" placeholder="직접 입력">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">호수 *</label>
+            ${villaUnits.length > 0 ? `<div class="villa-grid">${villaUnits.map(u => `<button class="villa-btn ${data.unit === u.unit ? 'active' : ''}" style="background:${data.unit === u.unit ? '#2e7d32' : 'white'}; color:${data.unit === u.unit ? 'white' : '#2e7d32'}" onclick="selectUnit('${u.unit}', '${u.phone || ''}')">${u.unit}</button>`).join('')}</div>` : ''}
+            <input type="text" class="form-input" id="unit" value="${data.unit}" placeholder="호수 입력">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">내용 *</label>
+            <textarea class="form-input" id="description" placeholder="수리 내용">${data.description}</textarea>
+          </div>
+          
+          <div class="row-2">
+            <div class="form-group">
+              <label class="form-label">세입자 전화</label>
+              <input type="tel" class="form-input" id="phone" value="${data.phone}" placeholder="010-0000-0000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">건물주 전화</label>
+              <input type="tel" class="form-input" id="ownerPhone" value="${data.ownerPhone}" placeholder="010-0000-0000">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">상태</label>
+            <div class="status-select">
+              <button class="status-option pending ${data.status === '미결' ? 'active' : ''}" onclick="setStatus('미결')">미결</button>
+              <button class="status-option done ${data.status === '완료' ? 'active' : ''}" onclick="setStatus('완료')">완료</button>
+            </div>
+          </div>
+          
+          <button class="btn btn-orange btn-block" onclick="saveRepair()" style="margin-top: 10px;">
+            ${editData ? '수정 완료' : '접수하기'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 빌라 목록
+function renderVillaList(app) {
+  const villaUnits = selectedVilla ? units.filter(u => u.villaId === selectedVilla.id).sort((a,b) => (parseInt(a.unit)||0) - (parseInt(b.unit)||0)) : [];
+  
+  app.innerHTML = `
+    <div class="header">
+      <div>
+        <h1>🏠 빌라 관리</h1>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab" onclick="setTab('as')">🔧 A/S</button>
+      <button class="tab active" onclick="setTab('villa')">🏢 빌라</button>
+      <button class="tab" onclick="setTab('material')">📦 자재</button>
+    </div>
+    
+    <div style="padding: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 600; color: #00695c;">빌라 목록 (${villas.length})</span>
+        <button class="btn btn-orange btn-sm" onclick="goVillaForm()">+ 빌라추가</button>
+      </div>
+      
+      <div class="villa-grid">
+        ${villas.map(v => `<button class="villa-btn ${selectedVilla?.id === v.id ? 'active' : ''}" onclick="selectVillaView('${v.id}')">${v.name}</button>`).join('')}
+      </div>
+    </div>
+    
+    ${selectedVilla ? `
+      <div class="card">
+        <div class="card-header">
+          <span>${selectedVilla.name}</span>
+          <div>
+            <button class="btn btn-blue btn-sm" onclick="editVilla('${selectedVilla.id}')" style="margin-right:4px;">수정</button>
+            <button class="btn btn-green btn-sm" onclick="goUnitForm('${selectedVilla.id}')" style="margin-right:4px;">+호수</button>
+            <button class="btn btn-red btn-sm" onclick="deleteVilla('${selectedVilla.id}')">삭제</button>
+          </div>
+        </div>
+        <div class="villa-info">
+          <div class="villa-info-row">📍 ${selectedVilla.address || '-'}</div>
+          <div class="villa-info-row">👤 건물주 ${selectedVilla.ownerPhone ? `<a href="tel:${selectedVilla.ownerPhone}">${selectedVilla.ownerPhone}</a>` : '-'}</div>
+        </div>
+        <div class="card-body" style="padding-top:0;">
+          <table class="unit-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">호수</th>
+                <th>세입자 / 연락처</th>
+                <th style="width:80px;">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${villaUnits.length === 0 ? '<tr><td colspan="3" style="text-align:center;color:#999;padding:20px;">등록된 호수 없음</td></tr>' : villaUnits.map(u => `
+                <tr>
+                  <td><span class="unit-num">${u.unit}</span></td>
+                  <td>
+                    <div style="font-weight:600;">${u.tenant || '(공실)'}</div>
+                    ${u.phone ? `<a href="tel:${u.phone}" style="color:#1565c0;font-size:13px;">${u.phone}</a>` : ''}
+                    ${u.moveIn ? `<div style="font-size:11px;color:#888;margin-top:2px;">입주: ${u.moveIn}</div>` : ''}
+                  </td>
+                  <td>
+                    <button class="btn btn-blue btn-sm" onclick="editUnit('${u.id}')" style="margin-bottom:4px;display:block;width:100%;">수정</button>
+                    <button class="btn btn-red btn-sm" onclick="deleteUnit('${u.id}')" style="display:block;width:100%;">삭제</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ` : ''}
+  `;
+}
+
+// 빌라 폼
+function renderVillaForm(app) {
+  const data = editData || { name: '', address: '', ownerPhone: '' };
+  
+  app.innerHTML = `
+    <div class="back-header">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <span class="back-title">${editData?.id ? '빌라 수정' : '빌라 추가'}</span>
+    </div>
+    
+    <div style="padding: 16px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">빌라명 *</label>
+            <input type="text" class="form-input" id="villaNameInput" value="${data.name}" placeholder="빌라명">
+          </div>
+          <div class="form-group">
+            <label class="form-label">주소</label>
+            <input type="text" class="form-input" id="villaAddress" value="${data.address || ''}" placeholder="주소">
+          </div>
+          <div class="form-group">
+            <label class="form-label">건물주 전화</label>
+            <input type="tel" class="form-input" id="villaOwnerPhone" value="${data.ownerPhone || ''}" placeholder="010-0000-0000">
+          </div>
+          <button class="btn btn-orange btn-block" onclick="saveVilla()" style="margin-top: 10px;">
+            ${editData?.id ? '수정 완료' : '등록하기'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 호수 폼
+function renderUnitForm(app) {
+  const data = editData || { unit: '', tenant: '', phone: '', moveIn: '', memo: '' };
+  
+  app.innerHTML = `
+    <div class="back-header">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <span class="back-title">${editData?.id ? '호수 수정' : '호수 추가'}</span>
+    </div>
+    
+    <div style="padding: 16px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">호수 *</label>
+            <input type="text" class="form-input" id="unitNum" value="${data.unit}" placeholder="101">
+          </div>
+          <div class="form-group">
+            <label class="form-label">세입자</label>
+            <input type="text" class="form-input" id="unitTenant" value="${data.tenant || ''}" placeholder="세입자 이름">
+          </div>
+          <div class="form-group">
+            <label class="form-label">연락처</label>
+            <input type="tel" class="form-input" id="unitPhone" value="${data.phone || ''}" placeholder="010-0000-0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">입주일</label>
+            <input type="date" class="form-input" id="unitMoveIn" value="${data.moveIn || ''}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">메모</label>
+            <input type="text" class="form-input" id="unitMemo" value="${data.memo || ''}" placeholder="메모">
+          </div>
+          <button class="btn btn-orange btn-block" onclick="saveUnit()" style="margin-top: 10px;">
+            ${editData?.id ? '수정 완료' : '등록하기'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// 자재 목록
+function renderMaterialList(app) {
+  const totalProfit = materials.reduce((sum, m) => sum + (m.profit || 0), 0);
+  
+  app.innerHTML = `
+    <div class="header">
+      <div>
+        <h1>🏠 빌라 관리</h1>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab" onclick="setTab('as')">🔧 A/S</button>
+      <button class="tab" onclick="setTab('villa')">🏢 빌라</button>
+      <button class="tab active" onclick="setTab('material')">📦 자재</button>
+    </div>
+    
+    <div style="padding: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-size: 14px;">총 <b>${materials.length}</b>개 | 이익 <b style="color:#4caf50;">+${totalProfit.toLocaleString()}원</b></span>
+        <button class="btn btn-orange btn-sm" onclick="goMaterialForm()">+ 추가</button>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-top:0;">
+      <div class="card-body">
+        ${materials.length === 0 ? '<div class="empty">등록된 자재 없음</div>' : materials.map(m => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee;">
+            <div>
+              <div style="font-weight:600;">${m.name}</div>
+              <div style="font-size:13px;color:#666;">구입 ${(m.price||0).toLocaleString()} → 청구 ${(m.chargePrice||0).toLocaleString()}</div>
+              <div style="font-size:13px;color:#4caf50;font-weight:600;">이익 +${(m.profit||0).toLocaleString()}</div>
+            </div>
+            <button class="btn btn-red btn-sm" onclick="deleteMaterial('${m.id}')">삭제</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// 자재 폼
+function renderMaterialForm(app) {
+  app.innerHTML = `
+    <div class="back-header">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <span class="back-title">자재 추가</span>
+    </div>
+    
+    <div style="padding: 16px;">
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">품목명 *</label>
+            <input type="text" class="form-input" id="matName" placeholder="품목명">
+          </div>
+          <div class="row-2">
+            <div class="form-group">
+              <label class="form-label">구입가 *</label>
+              <input type="number" class="form-input" id="matPrice" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">청구가 *</label>
+              <input type="number" class="form-input" id="matChargePrice" placeholder="0">
+            </div>
+          </div>
+          <button class="btn btn-orange btn-block" onclick="saveMaterial()" style="margin-top: 10px;">등록하기</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// === 함수들 ===
+
+function setTab(tab) {
+  currentTab = tab;
+  currentPage = 'list';
+  selectedVilla = null;
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
+  render();
+}
+
+function goBack() {
+  currentPage = 'list';
+  editData = null;
+  render();
+}
+
+function goASForm() {
+  editData = null;
+  currentPage = 'asForm';
+  render();
+}
+
+function goVillaForm() {
+  editData = null;
+  currentPage = 'villaForm';
+  render();
+}
+
+function goUnitForm(villaId) {
+  editData = { villaId: villaId };
+  currentPage = 'unitForm';
+  render();
+}
+
+function goMaterialForm() {
+  currentPage = 'materialForm';
+  render();
+}
+
+// A/S 관련
+let formData = {};
+
+function selectVilla(name, ownerPhone) {
+  document.getElementById('villaName').value = name;
+  document.getElementById('ownerPhone').value = ownerPhone || '';
+  formData.villaName = name;
+  formData.ownerPhone = ownerPhone;
+  render();
+}
+
+function selectUnit(unit, phone) {
+  document.getElementById('unit').value = unit;
+  document.getElementById('phone').value = phone || '';
+}
+
+function setStatus(status) {
+  formData.status = status;
+  const pending = document.querySelector('.status-option.pending');
+  const done = document.querySelector('.status-option.done');
+  if (status === '미결') {
+    pending.classList.add('active');
+    done.classList.remove('active');
+  } else {
+    done.classList.add('active');
+    pending.classList.remove('active');
+  }
+}
+
+async function saveRepair() {
+  const villaName = document.getElementById('villaName').value;
+  const unit = document.getElementById('unit').value;
+  const description = document.getElementById('description').value;
+  const receiveDate = document.getElementById('receiveDate').value;
+  const phone = document.getElementById('phone').value;
+  const ownerPhone = document.getElementById('ownerPhone').value;
+  const status = formData.status || (editData?.status) || '미결';
+  
+  if (!villaName || !unit || !description) {
+    alert('빌라, 호수, 내용은 필수입니다');
+    return;
+  }
+  
+  const data = { villaName, unit, description, receiveDate, phone, ownerPhone, status };
+  
+  try {
+    if (editData?.id) {
+      await db.collection('repairs').doc(editData.id).update(data);
+    } else {
+      await db.collection('repairs').doc('r_' + Date.now()).set(data);
+    }
+    editData = null;
+    formData = {};
+    currentPage = 'list';
+    render();
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+  }
+}
+
+function editRepair(id) {
+  editData = repairs.find(r => r.id === id);
+  formData.status = editData?.status || '미결';
+  currentPage = 'asForm';
+  render();
+}
+
+async function toggleStatus(id) {
+  const r = repairs.find(r => r.id === id);
+  if (r) {
+    await db.collection('repairs').doc(id).update({ status: r.status === '완료' ? '미결' : '완료' });
+  }
+}
+
+async function deleteRepair(id) {
+  if (confirm('삭제할까요?')) {
+    await db.collection('repairs').doc(id).delete();
+  }
+}
+
+// 빌라 관련
+function selectVillaView(id) {
+  selectedVilla = villas.find(v => v.id === id);
+  render();
+}
+
+async function saveVilla() {
+  const name = document.getElementById('villaNameInput').value;
+  const address = document.getElementById('villaAddress').value;
+  const ownerPhone = document.getElementById('villaOwnerPhone').value;
+  
+  if (!name) {
+    alert('빌라명은 필수입니다');
+    return;
+  }
+  
+  try {
+    if (editData?.id) {
+      await db.collection('villas').doc(editData.id).update({ name, address, ownerPhone });
+    } else {
+      await db.collection('villas').doc('v_' + Date.now()).set({ name, address, ownerPhone });
+    }
+    editData = null;
+    currentPage = 'list';
+    render();
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+  }
+}
+
+function editVilla(id) {
+  editData = villas.find(v => v.id === id);
+  currentPage = 'villaForm';
+  render();
+}
+
+async function deleteVilla(id) {
+  if (confirm('빌라를 삭제할까요? 호수 정보도 함께 삭제됩니다.')) {
+    await db.collection('villas').doc(id).delete();
+    const villaUnits = units.filter(u => u.villaId === id);
+    for (const u of villaUnits) {
+      await db.collection('units').doc(u.id).delete();
+    }
+    selectedVilla = null;
+    render();
+  }
+}
+
+// 호수 관련
+async function saveUnit() {
+  const unit = document.getElementById('unitNum').value;
+  const tenant = document.getElementById('unitTenant').value;
+  const phone = document.getElementById('unitPhone').value;
+  const moveIn = document.getElementById('unitMoveIn').value;
+  const memo = document.getElementById('unitMemo').value;
+  
+  if (!unit) {
+    alert('호수는 필수입니다');
+    return;
+  }
+  
+  try {
+    if (editData?.id) {
+      await db.collection('units').doc(editData.id).update({ unit, tenant, phone, moveIn, memo });
+    } else {
+      await db.collection('units').doc('u_' + Date.now()).set({ unit, tenant, phone, moveIn, memo, villaId: editData.villaId });
+    }
+    editData = null;
+    currentPage = 'list';
+    render();
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+  }
+}
+
+function editUnit(id) {
+  const u = units.find(u => u.id === id);
+  editData = { ...u, villaId: u.villaId };
+  currentPage = 'unitForm';
+  render();
+}
+
+async function deleteUnit(id) {
+  if (confirm('삭제할까요?')) {
+    await db.collection('units').doc(id).delete();
+  }
+}
+
+// 자재 관련
+async function saveMaterial() {
+  const name = document.getElementById('matName').value;
+  const price = parseInt(document.getElementById('matPrice').value) || 0;
+  const chargePrice = parseInt(document.getElementById('matChargePrice').value) || 0;
+  
+  if (!name || !price || !chargePrice) {
+    alert('모두 입력하세요');
+    return;
+  }
+  
+  try {
+    await db.collection('materials').doc('m_' + Date.now()).set({
+      name, price, chargePrice, profit: chargePrice - price
+    });
+    currentPage = 'list';
+    render();
+  } catch (e) {
+    alert('저장 실패: ' + e.message);
+  }
+}
+
+async function deleteMaterial(id) {
+  if (confirm('삭제할까요?')) {
+    await db.collection('materials').doc(id).delete();
+  }
+}
+
+// 초기 렌더링
+setTimeout(render, 1500);
+</script>
+
+</body>
+</html>
